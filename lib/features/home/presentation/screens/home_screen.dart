@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/theme/app_theme.dart';
 
-/// الشاشة الرئيسية للتطبيق (HomeScreen) تجمع بين أقسام المصحف والبحث والدراسة.
-class HomeScreen extends StatefulWidget {
+import '../../../../app/theme/app_theme.dart';
+import '../../../quran_reader/presentation/controllers/quran_providers.dart';
+
+/// الشاشة الرئيسية للتطبيق (HomeScreen) تجمع بين أقسام المصحف والبحث والدراسة مع ربط موضع القراءة الحي.
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
 
   @override
@@ -61,12 +64,30 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// بناء قسم المصحف التقليدي
+  /// بناء قسم المصحف التقليدي مع جلب آخر موضع قراءة ديناميكيًا من SQLite
   Widget _buildQuranSection(BuildContext context) {
+    final readingPositionState = ref.watch(readingPositionNotifierProvider);
+    final surahListState = ref.watch(surahListNotifierProvider);
+    final surahs = surahListState.uiState.data ?? [];
+
+    int surahId = 1;
+    int ayahNum = 1;
+    String surahName = 'الفاتحة';
+
+    if (readingPositionState.isSuccess && readingPositionState.data != null) {
+      final pos = readingPositionState.data!;
+      surahId = pos.surahId;
+      ayahNum = pos.ayahNumber;
+      final matchedSurah = surahs.where((s) => s.id == surahId);
+      if (matchedSurah.isNotEmpty) {
+        surahName = matchedSurah.first.nameArabic;
+      }
+    }
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // بطاقة آخر موضع قراءة
+        // بطاقة آخر موضع قراءة ديناميكية
         Card(
           color: Theme.of(context).brightness == Brightness.light
               ? AppTheme.primaryEmerald
@@ -92,11 +113,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'سورة الفاتحة - الآية 1',
-                  style: TextStyle(
+                Text(
+                  'سورة $surahName - الآية $ayahNum',
+                  style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -104,7 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: ElevatedButton.icon(
-                    onPressed: () => context.push('/reader/1'),
+                    onPressed: () {
+                      context.push('/reader/$surahId?ayah=$ayahNum');
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.secondaryGold,
                       foregroundColor: Colors.white,
@@ -119,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 20),
 
-        // بطاقة استعراض قائمة السور
+        // بطاقة استعراض قائمة السور الـ 114
         Card(
           child: ListTile(
             contentPadding: const EdgeInsets.all(16),
@@ -132,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
               'فهرس السور',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            subtitle: const Text('استعراض سور القرآن الكريم الـ 114 سورة'),
+            subtitle: const Text('استعراض سور القرآن الكريم الـ 114 سورة كاملة'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => context.push('/surahs'),
           ),
@@ -152,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
               'الآيات المحفوظة والمفضلة',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            subtitle: const Text('الرجوع إلى الآيات التي قمت بحفظها وملاحظاتك'),
+            subtitle: const Text('الرجوع إلى الآيات التي قمت بحفظها وملاحظاتك الشخصية'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => context.push('/bookmarks'),
           ),
