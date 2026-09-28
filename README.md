@@ -7,7 +7,7 @@
 ## 🌟 مميزات التطبيق وأقسامه
 
 ### 1. قسم المصحف الشريف (Quran Reader)
-- عرض سور القرآن الكريم الـ 114 سورة.
+- عرض سور القرآن الكريم الـ 114 سورة كاملة.
 - تلاوة الآيات بالرسم والنص العثماني الأصلي المشكول دون تعديل.
 - الانتقال المباشر إلى آية محددة.
 - حفظ آخر موضع قراءة للمستخدم واسترجاعه بنقرة واحدة.
@@ -29,6 +29,19 @@
 
 ---
 
+## 💾 قاعدة البيانات المدمجة (SQLite Pre-populated Database)
+
+تحتوي قاعدة البيانات `assets/database/quran.db` على:
+- **114 سورة** ببياناتها المعتمدة في مصاحف المدينة المنورة ورواية حفص عن عاصم.
+- **6236 آية** متكاملة بنصوصها العثمانية والمبسطة والمطبعة، مع تصحيح واستدراك آية البسملة في الفاتحة.
+- **77,794 كلمة قرآنية** مع التحليل الصرفي والأصل (Lemma).
+- **2,194 جذراً لغوياً** فريداً.
+- **58,396 رابطاً صرفياً** موثقاً.
+- **8 فهارس فائقة** لتسريع البحث المباشر والبحث بالجذور وسياق الآيات.
+- آلية نسخ تلقائية عند أول إقلاع للتطبيق وإدارة الهجرات (Migrations).
+
+---
+
 ## 🏛️ البنية المعمارية المعتمدة (Architecture)
 
 التطبيق يعتمد نمط **Feature-First Clean Architecture**:
@@ -43,55 +56,18 @@ Domain Layer (Use Cases & Pure Entities)
 Data Layer (Repositories & SQLite Pre-populated Database)
 ```
 
-### 📂 شجرة المجلدات الأساسية
-
-```text
-lib/
-├── app/
-│   ├── app.dart                   # الويدجت الجذر للتطبيق مع التوطين والثيم
-│   ├── router.dart                # نظام التوجيه والتنقل الشامل (GoRouter)
-│   └── theme/
-│       └── app_theme.dart         # الهوية البصرية الإسلامية والألوان الفاتحة والداكنة
-├── core/
-│   ├── constants/
-│   │   └── ui_state.dart          # غلاف حالات الواجهة (Initial, Loading, Success, Empty, Error)
-│   ├── database/                  # خدمات SQLite وإدارة الهجرة والأصول
-│   └── text/                      # معالج النصوص والمطبع العربي ArabicNormalizer
-└── features/
-    ├── home/                      # الشاشة الرئيسية وأقسام التبديل
-    ├── quran_reader/              # عارض المصحف وقائمة السور
-    ├── quran_search/              # محرك البحث المباشر والصرفي وسياق الآيات
-    ├── root_study/                # شاشة دراسة الجذر وإحصاءات المشتقات
-    ├── bookmarks/                 # إدارة المفضلة والتدبرات
-    └── settings/                  # إعدادات المظهر وحجم الخط والترخيص
-```
-
 ---
 
-## 📊 الكيانات البرمجية الأساسية (Domain Entities)
+## 🚀 ملخص إنجاز المراحل (Progress Status)
 
-- [Surah](file:///c:/Users/Atiah/myworks/quranapp/lib/features/quran_reader/domain/entities/surah.dart): تمثيل السورة وبياناتها التنزيلية.
-- [Ayah](file:///c:/Users/Atiah/myworks/quranapp/lib/features/quran_reader/domain/entities/ayah.dart): تمثيل الآية القرآنية بنصوصها (عثماني، مبسط، مطبّع).
-- [QuranWord](file:///c:/Users/Atiah/myworks/quranapp/lib/features/quran_search/domain/entities/quran_word.dart): الكلمة وموقعها وبياناتها الصرفية (Lemma, Root, Part of Speech).
-- [QuranRoot](file:///c:/Users/Atiah/myworks/quranapp/lib/features/quran_search/domain/entities/quran_root.dart): الجذر اللغوي وإحصاءات وروده ومشتقاته.
-- [RootCandidate](file:///c:/Users/Atiah/myworks/quranapp/lib/features/quran_search/domain/entities/root_candidate.dart): ترشيح الجذر ودرجة الثقة ومصدر الاستخراج.
-- [AyahSearchResult](file:///c:/Users/Atiah/myworks/quranapp/lib/features/quran_search/domain/entities/ayah_search_result.dart): بطاقة نتيجة البحث الشاملة ومواضع الكلمات المطابقة.
-- [AyahRange](file:///c:/Users/Atiah/myworks/quranapp/lib/features/quran_search/domain/entities/ayah_range.dart): نطاق الآيات وخوارزمية دمج النطاقات المتداخلة.
-- [AyahContextGroup](file:///c:/Users/Atiah/myworks/quranapp/lib/features/quran_search/domain/entities/ayah_context_group.dart): تجميعة سياق الآيات مع تمييز الآيات الهدف.
-- [Bookmark](file:///c:/Users/Atiah/myworks/quranapp/lib/features/bookmarks/domain/entities/bookmark.dart): العلامات المرجعية والملاحظات.
-- [ReadingPosition](file:///c:/Users/Atiah/myworks/quranapp/lib/features/quran_reader/domain/entities/reading_position.dart): حفظ آخر موضع قراءة.
-
----
-
-## 🚀 ما تم إنجازه في المرحلة 1 (Phase 1 Status)
-
-- [x] تهيئة البنية المعمارية وتثبيت كافة الحزم المتوافقة مع Flutter 3.41 و Dart 3.11.
-- [x] إعداد نظام التوجيه [appRouter](file:///c:/Users/Atiah/myworks/quranapp/lib/app/router.dart) لربط كافة الشاشات الـ 9.
-- [x] إعداد نظام الهوية البصرية والثيم [AppTheme](file:///c:/Users/Atiah/myworks/quranapp/lib/app/theme/app_theme.dart) للوضعين الفاتح والداكن.
-- [x] دعم اللغة العربية افتراضياً مع نمط الكتابة من اليمين لليسار (RTL) والتجهيز للتعدد اللغوي.
-- [x] بناء وتوثيق كافة كيانات النطاق الأساسية (Domain Entities) ونظام حالات الواجهة الموحد [UIState](file:///c:/Users/Atiah/myworks/quranapp/lib/core/constants/ui_state.dart).
-- [x] اجتياز التحليل البرمجي `flutter analyze` بنتيجة **0 issues**.
-- [x] اجتياز كافة الاختبارات `flutter test` بنجاح (12 اختبار وحدة وتكامل).
+- [x] **المرحلة 1**: تأسيس المعمارية، وتثبيت الحزم، وتجهيز الثيم والتوجيه وجميع نماذج الـ Domain واختبارات الوحدة.
+- [x] **المرحلة 2**: بناء قاعدة بيانات SQLite الجاهزة `quran.db` (114 سورة، 6236 آية، 77,794 كلمة، 2,194 جذراً)، وآلية النسخ عند أول تشغيل، وإدارة الإصدارات والترقيات `DatabaseMigrations`، واختبارات التكامل على الفهارس والاستعلامات.
+- [ ] **المرحلة 3**: مستودع القرآن وعرض قائمة السور وتلاوة الآيات مع حفظ موضع القراءة.
+- [ ] **المرحلة 4**: مطبع النصوص العربي المستقل والبحث المباشر.
+- [ ] **المرحلة 5**: محرك الجذور والبحث بالجذر وشاشة دراسة الجذر.
+- [ ] **المرحلة 6**: خوارزمية سياق الآيات ودمج النطاقات المتداخلة.
+- [ ] **المرحلة 7**: المفضلة والملاحظات وإعدادات الخط والوضع الليلي.
+- [ ] **المرحلة 8**: الاختبارات الشاملة وتحسينات الأداء.
 
 ---
 
@@ -104,7 +80,7 @@ flutter pub get
 # فحص سلامة وجودة الكود
 flutter analyze
 
-# تشغيل الاختبارات الآلية
+# تشغيل كافة الاختبارات الآلية (Unit & Database Integration)
 flutter test
 
 # تشغيل التطبيق
