@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/theme/app_theme.dart';
-import '../../domain/entities/search_match_type.dart';
+import 'package:share_plus/share_plus.dart';
 
-/// شاشة نتائج البحث (SearchResultsScreen) تعرض بطاقات الآيات المطابقة مع إمكانية عرض السياق.
-class SearchResultsScreen extends StatelessWidget {
+import 'package:quranapp/app/theme/app_theme.dart';
+import 'package:quranapp/core/database/quran_database.dart';
+import 'package:quranapp/core/text/quran_text_utils.dart';
+import 'package:quranapp/features/quran_search/domain/entities/ayah_search_result.dart';
+import 'package:quranapp/features/quran_search/domain/entities/search_match_type.dart';
+import 'package:quranapp/features/quran_search/presentation/controllers/search_providers.dart';
+
+/// شاشة مخصصة لعرض نتائج البحث المفصلة ومشاركتها (SearchResultsScreen).
+class SearchResultsScreen extends ConsumerWidget {
   final String query;
   final bool isRoot;
 
@@ -14,11 +22,50 @@ class SearchResultsScreen extends StatelessWidget {
     this.isRoot = false,
   });
 
+  void _copyAyah(BuildContext context, AyahSearchResult result) {
+    final text = '﴿${result.textUthmani}﴾ [سورة ${result.surahName}: ${result.ayahNumber}]';
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('تم نسخ الآية إلى الحافظة'), duration: Duration(seconds: 2)),
+    );
+  }
+
+  void _shareAyah(AyahSearchResult result) {
+    final text = '﴿${result.textUthmani}﴾\n[سورة ${result.surahName} - الآية ${result.ayahNumber}]';
+    SharePlus.instance.share(ShareParams(text: text));
+  }
+
+  Future<void> _bookmarkAyah(BuildContext context, AyahSearchResult result) async {
+    try {
+      await QuranDatabase.instance.insert(
+        table: 'bookmarks',
+        values: {
+          'ayah_id': result.ayahId,
+          'note': 'سورة ${result.surahName} آية ${result.ayahNumber}',
+          'created_at': DateTime.now().toIso8601String(),
+        },
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('تمت إضافة آية (${result.ayahNumber}) للمفضلة'),
+            backgroundColor: AppTheme.secondaryGold,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (_) {}
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final searchState = ref.watch(searchNotifierProvider);
+    final uiState = searchState.uiState;
+    final results = uiState.data ?? [];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('نتائج البحث: $query'),
+        title: Text('نتائج: $query'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -37,9 +84,9 @@ class SearchResultsScreen extends StatelessWidget {
                 Expanded(
                   child: Text(
                     isRoot
-                        ? 'بحث بالجذر: $query (سيتم ربطه بمحرك الاستعلام الصرفي في المرحلة 5)'
-                        : 'بحث مباشر: $query (سيتم ربطه بالمطبع والبحث المباشر في المرحلة 4)',
-                    style: const TextStyle(fontSize: 13),
+                        ? 'نتائج البحث بالجذر الصرفي: ($query) • ${results.length} آيات مطابقة'
+                        : 'نتائج البحث النصي المباشر: ($query) • ${results.length} آيات مطابقة',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -47,124 +94,133 @@ class SearchResultsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // نموذج تجريبي لبطاقة نتيجة البحث (البطاقة القياسية المحددة في TRD)
-          _buildSampleResultCard(context),
+          if (results.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: Text('لا توجد نتائج مطابقة لعرضها'),
+              ),
+            )
+          else
+            ...results.map((item) => _buildCard(context, item)),
         ],
       ),
     );
   }
 
-  /// بناء بطاقة نتيجة البحث القياسية وفق مواصفات TRD
-  Widget _buildSampleResultCard(BuildContext context) {
+  Widget _buildCard(BuildContext context, AyahSearchResult result) {
     return Card(
+      margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-          // رأس البطاقة: اسم السورة ورقم الآية ونوع المطابقة
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'سورة البقرة - الآية 20',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  color: AppTheme.primaryEmerald,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.secondaryGold.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  SearchMatchType.verifiedRoot.labelArabic,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'سورة ${result.surahName} - الآية ${result.ayahNumber}',
                   style: const TextStyle(
-                    fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.secondaryGold,
+                    fontSize: 15,
+                    color: AppTheme.primaryEmerald,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: result.matchType == SearchMatchType.verifiedRoot
+                        ? AppTheme.secondaryGold.withValues(alpha: 0.15)
+                        : AppTheme.primaryEmerald.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    result.matchType.labelArabic,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: result.matchType == SearchMatchType.verifiedRoot
+                          ? AppTheme.secondaryGold
+                          : AppTheme.primaryEmerald,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 20),
+            RichText(
+              text: TextSpan(
+                children: QuranTextUtils.highlightMatchedWords(
+                  textUthmani: result.textUthmani,
+                  matchedWords: result.matchedWords,
+                  defaultStyle: TextStyle(
+                    fontSize: 18,
+                    height: 2.0,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
               ),
-            ],
-          ),
-          const Divider(height: 20),
-
-          // النص القرآني العثماني
-          const Text(
-            'يَكَادُ الْبَرْقُ يَخْطَفُ أَبْصَارَهُمْ ۖ كُلَّمَا أَضَاءَ لَهُم مَّشَوْا فِيهِ...',
-            style: TextStyle(
-              fontSize: 18,
-              height: 1.8,
-              fontWeight: FontWeight.w500,
+              textAlign: TextAlign.right,
             ),
-            textAlign: TextAlign.right,
-          ),
-          const SizedBox(height: 12),
-
-          // الكلمات المطابقة والجذر
-          Row(
-            children: [
-              const Text(
-                'الكلمات المطابقة: ',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryEmerald.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(4),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                const Text('الكلمات المطابقة: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                ...result.matchedWords.map(
+                  (w) => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.secondaryGold.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(w, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  ),
                 ),
-                child: const Text('أَبْصَارَهُمْ', style: TextStyle(fontSize: 12)),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'الجذر: ',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-              const Text('بصر', style: TextStyle(fontSize: 13, color: AppTheme.primaryEmerald)),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // شريط أزرار الإجراءات السريعة
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              OutlinedButton.icon(
-                icon: const Icon(Icons.import_contacts, size: 16),
-                label: const Text('فتح في المصحف'),
-                onPressed: () => context.push('/reader/2?ayah=20'),
-              ),
-              OutlinedButton.icon(
-                icon: const Icon(Icons.layers_outlined, size: 16),
-                label: const Text('عرض السياق'),
-                onPressed: () => context.push('/context'),
-              ),
-              IconButton(
-                icon: const Icon(Icons.star_border),
-                tooltip: 'إضافة للمفضلة',
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.copy_outlined),
-                tooltip: 'نسخ الآية',
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.share_outlined),
-                tooltip: 'مشاركة الآية',
-                onPressed: () {},
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.import_contacts, size: 16),
+                  label: const Text('فتح في المصحف'),
+                  onPressed: () {
+                    context.push('/reader/${result.surahId}?ayah=${result.ayahNumber}');
+                  },
+                ),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.layers_outlined, size: 16),
+                  label: const Text('عرض السياق'),
+                  onPressed: () {
+                    context.push('/context?before=2&after=2');
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.star_border, size: 20),
+                  tooltip: 'إضافة للمفضلة',
+                  onPressed: () => _bookmarkAyah(context, result),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.copy_outlined, size: 18),
+                  tooltip: 'نسخ الآية',
+                  onPressed: () => _copyAyah(context, result),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.share_outlined, size: 18),
+                  tooltip: 'مشاركة الآية',
+                  onPressed: () => _shareAyah(result),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
   }
 }
