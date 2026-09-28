@@ -138,33 +138,76 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ],
                 ),
 
-                // خيارات الجذور المرشحة (إن وُجدت)
+                // خيارات الجذور المرشحة وفق TRD مع تمييز المؤكد عن الاقتراح
                 if (searchState.isRootSearch && searchState.rootCandidates.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    height: 36,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: searchState.rootCandidates.length,
-                      separatorBuilder: (context, index) => const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final cand = searchState.rootCandidates[index];
-                        final isSelected = searchState.selectedRoot == cand.root;
-                        return ChoiceChip(
-                          selected: isSelected,
-                          selectedColor: AppTheme.primaryEmerald,
-                          labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : AppTheme.primaryEmerald,
-                            fontWeight: FontWeight.bold,
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Text(
+                        'الجذور المحتملة:',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: SizedBox(
+                          height: 38,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: searchState.rootCandidates.length,
+                            separatorBuilder: (context, index) => const SizedBox(width: 8),
+                            itemBuilder: (context, index) {
+                              final cand = searchState.rootCandidates[index];
+                              final isSelected = searchState.selectedRoot == cand.root;
+                              return ChoiceChip(
+                                selected: isSelected,
+                                selectedColor: cand.isVerified ? AppTheme.primaryEmerald : Colors.amber.shade700,
+                                avatar: cand.isVerified
+                                    ? null
+                                    : Icon(
+                                        Icons.help_outline,
+                                        size: 16,
+                                        color: isSelected ? Colors.white : Colors.amber.shade800,
+                                      ),
+                                labelStyle: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : (cand.isVerified ? AppTheme.primaryEmerald : Colors.brown),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                                label: Text(
+                                  cand.isVerified ? 'جذر: ${cand.root}' : '${cand.root} (اقتراح غير مؤكد)',
+                                ),
+                                onSelected: (_) {
+                                  ref.read(searchNotifierProvider.notifier).selectCandidateRoot(cand.root);
+                                },
+                              );
+                            },
                           ),
-                          label: Text('جذر: ${cand.root}'),
-                          onSelected: (_) {
-                            ref.read(searchNotifierProvider.notifier).selectCandidateRoot(cand.root);
-                          },
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
+                  if (searchState.selectedRoot != null) ...[
+                    const SizedBox(height: 6),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.school_outlined, size: 16, color: AppTheme.secondaryGold),
+                        label: Text(
+                          'فتح شاشة دراسة الجذر (${searchState.selectedRoot})',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.secondaryGold,
+                          ),
+                        ),
+                        onPressed: () {
+                          context.push('/roots/${searchState.selectedRoot}');
+                        },
+                      ),
+                    ),
+                  ],
                 ],
               ],
             ),
@@ -435,6 +478,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     context.push('/context?before=2&after=2');
                   },
                 ),
+                if (result.matchedRoot != null)
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.account_tree_outlined, size: 16, color: AppTheme.secondaryGold),
+                    label: Text(
+                      'دراسة الجذر (${result.matchedRoot})',
+                      style: const TextStyle(color: AppTheme.secondaryGold, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      context.push('/roots/${result.matchedRoot}');
+                    },
+                  ),
                 IconButton(
                   icon: const Icon(Icons.star_border, size: 20),
                   tooltip: 'إضافة للمفضلة',

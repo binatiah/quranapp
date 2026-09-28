@@ -1,22 +1,31 @@
 import 'package:quranapp/core/database/quran_database.dart';
 import 'package:quranapp/core/text/arabic_normalizer.dart';
+import 'package:quranapp/features/quran_search/data/services/root_resolver_impl.dart';
 import 'package:quranapp/features/quran_search/domain/entities/ayah_search_result.dart';
 import 'package:quranapp/features/quran_search/domain/entities/quran_root.dart';
 import 'package:quranapp/features/quran_search/domain/entities/quran_word.dart';
 import 'package:quranapp/features/quran_search/domain/entities/root_candidate.dart';
 import 'package:quranapp/features/quran_search/domain/entities/search_match_type.dart';
 import 'package:quranapp/features/quran_search/domain/repositories/quran_search_repository.dart';
+import 'package:quranapp/features/quran_search/domain/services/root_resolver.dart';
 
-/// تطبيق مستودع البحث والدراسة القرآنية باستخدام SQLite ومطبع النصوص العربي.
+/// تطبيق مستودع البحث والدراسة القرآنية باستخدام SQLite ومطبع النصوص العربي ومحرك الجذور.
 class QuranSearchRepositoryImpl implements QuranSearchRepository {
   final QuranDatabase _db;
   final ArabicNormalizer _normalizer;
+  final RootResolver _rootResolver;
 
   QuranSearchRepositoryImpl({
     QuranDatabase? database,
     ArabicNormalizer? normalizer,
+    RootResolver? rootResolver,
   })  : _db = database ?? QuranDatabase.instance,
-        _normalizer = normalizer ?? const ArabicNormalizerImpl();
+        _normalizer = normalizer ?? const ArabicNormalizerImpl(),
+        _rootResolver = rootResolver ??
+            RootResolverImpl(
+              database: database ?? QuranDatabase.instance,
+              normalizer: normalizer ?? const ArabicNormalizerImpl(),
+            );
 
   @override
   Future<List<AyahSearchResult>> searchExactWord(String word, {int? surahId}) async {
@@ -143,60 +152,7 @@ class QuranSearchRepositoryImpl implements QuranSearchRepository {
 
   @override
   Future<List<RootCandidate>> resolveRoots(String query) async {
-    final normalized = _normalizer.normalizeForSearch(query);
-    if (normalized.isEmpty) return const [];
-
-    final candidates = <RootCandidate>[];
-    final seenRoots = <String>{};
-
-    // 1. البحث المباشر في root_normalized
-    final directRoots = await _db.query(
-      sql: 'SELECT root, root_normalized FROM roots WHERE root_normalized = ? LIMIT 5;',
-      arguments: [normalized],
-    );
-    for (final r in directRoots) {
-      final rootNorm = r['root_normalized'] as String;
-      if (seenRoots.add(rootNorm)) {
-        candidates.add(
-          RootCandidate(
-            root: rootNorm,
-            confidence: 1.0,
-            source: 'قاعدة بيانات الجذور الصرفية الموثقة',
-            isVerified: true,
-            matchType: SearchMatchType.verifiedRoot,
-          ),
-        );
-      }
-    }
-
-    // 2. البحث في word_normalized و lemma_normalized
-    final wordRoots = await _db.query(
-      sql: '''
-        SELECT DISTINCT root_normalized
-        FROM words
-        WHERE (word_normalized = ? OR lemma_normalized = ?)
-          AND root_normalized IS NOT NULL
-        LIMIT 5;
-      ''',
-      arguments: [normalized, normalized],
-    );
-
-    for (final wr in wordRoots) {
-      final rootNorm = wr['root_normalized'] as String;
-      if (seenRoots.add(rootNorm)) {
-        candidates.add(
-          RootCandidate(
-            root: rootNorm,
-            confidence: 0.95,
-            source: 'معجم الكلمات الصرفي الموثق',
-            isVerified: true,
-            matchType: SearchMatchType.verifiedRoot,
-          ),
-        );
-      }
-    }
-
-    return candidates;
+    return _rootResolver.resolve(query);
   }
 
   @override

@@ -201,6 +201,17 @@ class SearchResultsScreen extends ConsumerWidget {
                     context.push('/context?before=2&after=2');
                   },
                 ),
+                if (result.matchedRoot != null)
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.account_tree_outlined, size: 16, color: AppTheme.secondaryGold),
+                    label: Text(
+                      'دراسة الجذر (${result.matchedRoot})',
+                      style: const TextStyle(color: AppTheme.secondaryGold, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      context.push('/roots/${result.matchedRoot}');
+                    },
+                  ),
                 IconButton(
                   icon: const Icon(Icons.star_border, size: 20),
                   tooltip: 'إضافة للمفضلة',
