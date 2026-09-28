@@ -198,7 +198,7 @@ class SearchResultsScreen extends ConsumerWidget {
                   icon: const Icon(Icons.layers_outlined, size: 16),
                   label: const Text('عرض السياق'),
                   onPressed: () {
-                    context.push('/context?before=2&after=2');
+                    context.push('/context?surahId=${result.surahId}&ayah=${result.ayahNumber}&before=2&after=2');
                   },
                 ),
                 if (result.matchedRoot != null)

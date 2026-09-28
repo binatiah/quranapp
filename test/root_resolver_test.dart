@@ -16,13 +16,13 @@ void main() {
     late QuranDatabase testDb;
     late RootResolverImpl rootResolver;
 
-    setUp(() async {
-      QuranDatabase.resetForTesting();
+    setUpAll(() async {
       final assetDbPath = p.join(Directory.current.path, 'assets', 'database', 'quran.db');
 
       testDb = QuranDatabase.forTesting(
         customFactory: databaseFactoryFfi,
         customPath: assetDbPath,
+        readOnly: true,
       );
       rootResolver = RootResolverImpl(
         database: testDb,
@@ -30,7 +30,7 @@ void main() {
       );
     });
 
-    tearDown(() async {
+    tearDownAll(() async {
       await testDb.close();
       QuranDatabase.resetForTesting();
     });

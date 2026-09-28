@@ -20,10 +20,17 @@ class QuranDatabase {
   /// المسار المخصص لملف قاعدة البيانات (يُستخدم في بيئات الاختبار)
   final String? _customPath;
 
+  /// تحديد ما إذا كان الاتصال مخصصاً للقراءة فقط (لتفادي حجز أقفال الملفات أثناء الاختبارات المتزامنة)
+  final bool _readOnly;
+
   /// المنشئ الداخلي الخاص
-  QuranDatabase._({DatabaseFactory? customFactory, String? customPath})
-      : _customFactory = customFactory,
-        _customPath = customPath;
+  QuranDatabase._({
+    DatabaseFactory? customFactory,
+    String? customPath,
+    bool readOnly = false,
+  })  : _customFactory = customFactory,
+        _customPath = customPath,
+        _readOnly = readOnly;
 
   /// الحصول على النسخة المشتركة الفردية (Singleton)
   static QuranDatabase get instance {
@@ -35,10 +42,12 @@ class QuranDatabase {
   factory QuranDatabase.forTesting({
     required DatabaseFactory customFactory,
     required String customPath,
+    bool readOnly = false,
   }) {
     return QuranDatabase._(
       customFactory: customFactory,
       customPath: customPath,
+      readOnly: readOnly,
     );
   }
 
@@ -71,12 +80,13 @@ class QuranDatabase {
       await _copyDatabaseFromAssets(path);
     }
 
-    // فتح قاعدة البيانات مع تفعيل إدارة الترحيلات
+    // فتح قاعدة البيانات مع تفعيل خيار readOnly وإدارة الترحيلات
     return await factory.openDatabase(
       path,
       options: OpenDatabaseOptions(
-        version: DatabaseMigrations.currentVersion,
-        onUpgrade: DatabaseMigrations.onUpgrade,
+        readOnly: _readOnly,
+        version: _readOnly ? null : DatabaseMigrations.currentVersion,
+        onUpgrade: _readOnly ? null : DatabaseMigrations.onUpgrade,
       ),
     );
   }

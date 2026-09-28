@@ -10,6 +10,7 @@ import '../features/quran_search/presentation/screens/search_results_screen.dart
 import '../features/quran_search/presentation/screens/search_screen.dart';
 import '../features/root_study/presentation/screens/root_study_screen.dart';
 import '../features/settings/presentation/screens/settings_screen.dart';
+import '../features/quran_search/domain/entities/ayah_search_result.dart';
 
 /// تكوين نظام التوجيه والتنقل الشامل (GoRouter) للتطبيق.
 final GoRouter appRouter = GoRouter(
@@ -86,12 +87,23 @@ final GoRouter appRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         final beforeStr = state.uri.queryParameters['before'];
         final afterStr = state.uri.queryParameters['after'];
+        final surahIdStr = state.uri.queryParameters['surahId'];
+        final ayahStr = state.uri.queryParameters['ayah'];
+
         final before = beforeStr != null ? int.tryParse(beforeStr) ?? 2 : 2;
         final after = afterStr != null ? int.tryParse(afterStr) ?? 2 : 2;
+        final surahId = surahIdStr != null ? int.tryParse(surahIdStr) : null;
+        final ayahNumber = ayahStr != null ? int.tryParse(ayahStr) : null;
+        final results = state.extra is List<AyahSearchResult>
+            ? state.extra as List<AyahSearchResult>
+            : null;
 
         return AyahContextScreen(
           initialBeforeCount: before,
           initialAfterCount: after,
+          surahId: surahId,
+          ayahNumber: ayahNumber,
+          results: results,
         );
       },
     ),

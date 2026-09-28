@@ -483,7 +483,7 @@ class RootStudyScreen extends ConsumerWidget {
                   icon: const Icon(Icons.layers_outlined, size: 16),
                   label: const Text('السياق', style: TextStyle(fontSize: 12)),
                   onPressed: () {
-                    context.push('/context?before=2&after=2');
+                    context.push('/context?surahId=${item.surahId}&ayah=${item.ayahNumber}&before=2&after=2');
                   },
                 ),
                 IconButton(
