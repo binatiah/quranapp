@@ -5,6 +5,9 @@
 *.swp
 *.db-wal
 *.db-shm
+*.sqbpro
+*.xlsx
+.vscode/
 .DS_Store
 .atom/
 .build/

@@ -66,6 +66,28 @@ class UIState<T> extends Equatable {
   /// التحقق من كون الحالة أولية
   bool get isInitial => status == UIStatus.initial;
 
+  /// تنفيذ دالة مقابلة للحالة الراهنة (Pattern Matching على الحالات)
+  R when<R>({
+    required R Function() initial,
+    required R Function() loading,
+    required R Function() empty,
+    required R Function(String message) error,
+    required R Function(T data) success,
+  }) {
+    switch (status) {
+      case UIStatus.initial:
+        return initial();
+      case UIStatus.loading:
+        return loading();
+      case UIStatus.empty:
+        return empty();
+      case UIStatus.error:
+        return error(errorMessage ?? 'حدث خطأ غير متوقع');
+      case UIStatus.success:
+        return success(data as T);
+    }
+  }
+
   @override
   List<Object?> get props => [status, data, errorMessage];
 }

@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../../app/theme/app_theme.dart';
-import '../../../../core/database/quran_database.dart';
+import 'package:quranapp/app/theme/app_theme.dart';
+import 'package:quranapp/features/bookmarks/presentation/controllers/bookmarks_providers.dart';
+import 'package:quranapp/features/settings/presentation/controllers/settings_providers.dart';
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../controllers/quran_providers.dart';
@@ -73,27 +74,27 @@ class _QuranReaderScreenState extends ConsumerState<QuranReaderScreen> {
     }
   }
 
-  /// إضافة الآية إلى المفضلة في SQLite
-  Future<void> _addToBookmarks(Ayah ayah, String surahName) async {
-    try {
-      await QuranDatabase.instance.insert(
-        table: 'bookmarks',
-        values: {
-          'ayah_id': ayah.id,
-          'note': 'سورة $surahName آية ${ayah.ayahNumber}',
-          'created_at': DateTime.now().toIso8601String(),
-        },
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('تمت إضافة الآية ${ayah.ayahNumber} من سورة $surahName إلى المفضلة'),
-            backgroundColor: AppTheme.secondaryGold,
-            duration: const Duration(seconds: 2),
+  /// تبديل حالة حفظ الآية في المفضلة
+  Future<void> _toggleBookmark(Ayah ayah, String surahName) async {
+    final notifier = ref.read(bookmarksNotifierProvider.notifier);
+    final isAdded = await notifier.toggleBookmark(
+      ayahId: ayah.id,
+      note: 'سورة $surahName آية ${ayah.ayahNumber}',
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isAdded
+                ? 'تمت إضافة الآية ${ayah.ayahNumber} من سورة $surahName إلى المفضلة'
+                : 'تمت إزالة الآية ${ayah.ayahNumber} من المفضلة',
           ),
-        );
-      }
-    } catch (_) {}
+          backgroundColor: isAdded ? AppTheme.secondaryGold : Colors.grey.shade800,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   /// نسخ نص الآية إلى الحافظة
@@ -120,7 +121,7 @@ class _QuranReaderScreenState extends ConsumerState<QuranReaderScreen> {
       context: context,
       builder: (ctx) => Consumer(
         builder: (context, ref, _) {
-          final currentSize = ref.watch(fontSizeProvider);
+          final currentSize = ref.watch(appFontSizeProvider);
           return AlertDialog(
             title: const Text('حجم خط الآيات'),
             content: Column(
@@ -144,7 +145,7 @@ class _QuranReaderScreenState extends ConsumerState<QuranReaderScreen> {
                   activeColor: AppTheme.primaryEmerald,
                   label: '${currentSize.toInt()}',
                   onChanged: (val) {
-                    ref.read(fontSizeProvider.notifier).state = val;
+                    ref.read(settingsNotifierProvider.notifier).setFontSize(val);
                   },
                 ),
               ],
@@ -166,7 +167,7 @@ class _QuranReaderScreenState extends ConsumerState<QuranReaderScreen> {
     final readerState = ref.watch(readerNotifierProvider(widget.surahId));
     final uiState = readerState.uiState;
     final surah = readerState.surah;
-    final fontSize = ref.watch(fontSizeProvider);
+    final fontSize = ref.watch(appFontSizeProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -368,10 +369,20 @@ class _QuranReaderScreenState extends ConsumerState<QuranReaderScreen> {
                       tooltip: 'تعيين كموضع قراءة',
                       onPressed: () => _saveReadingPosition(ayah.ayahNumber, surahName),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.star_border, size: 20),
-                      tooltip: 'إضافة للمفضلة',
-                      onPressed: () => _addToBookmarks(ayah, surahName),
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final isBookmarkedAsync = ref.watch(isAyahBookmarkedProvider(ayah.id));
+                        final isBookmarked = isBookmarkedAsync.value ?? false;
+                        return IconButton(
+                          icon: Icon(
+                            isBookmarked ? Icons.star : Icons.star_border,
+                            size: 20,
+                            color: isBookmarked ? AppTheme.secondaryGold : null,
+                          ),
+                          tooltip: isBookmarked ? 'إزالة من المفضلة' : 'إضافة للمفضلة',
+                          onPressed: () => _toggleBookmark(ayah, surahName),
+                        );
+                      },
                     ),
                     IconButton(
                       icon: const Icon(Icons.copy_outlined, size: 18),
