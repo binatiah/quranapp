@@ -27,7 +27,10 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
   }
 
   /// فتح حوار تعديل أو إضافة ملاحظة/تدبر لآية محفوظة
-  Future<void> _showEditNoteDialog(BuildContext context, Bookmark bookmark) async {
+  Future<void> _showEditNoteDialog(
+    BuildContext context,
+    Bookmark bookmark,
+  ) async {
     final noteController = TextEditingController(text: bookmark.note ?? '');
 
     final saved = await showDialog<bool>(
@@ -64,7 +67,10 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppTheme.primaryEmerald, width: 2),
+                    borderSide: const BorderSide(
+                      color: AppTheme.primaryEmerald,
+                      width: 2,
+                    ),
                   ),
                 ),
               ),
@@ -108,7 +114,8 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
 
   /// نسخ نص الآية المفضلة مع بيانات السورة للحافظة
   void _copyBookmark(Bookmark bookmark) {
-    final text = '﴿${bookmark.ayahText ?? ""}﴾\n[سورة ${bookmark.surahName ?? ""} - الآية ${bookmark.ayahNumber ?? ""}]';
+    final text =
+        '﴿${bookmark.ayahText ?? ""}﴾\n[سورة ${bookmark.surahName ?? ""} - الآية ${bookmark.ayahNumber ?? ""}]';
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -120,7 +127,8 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
 
   /// مشاركة نص الآية والتدبر الخارجي
   void _shareBookmark(Bookmark bookmark) {
-    var text = '﴿${bookmark.ayahText ?? ""}﴾\n[سورة ${bookmark.surahName ?? ""} - الآية ${bookmark.ayahNumber ?? ""}]';
+    var text =
+        '﴿${bookmark.ayahText ?? ""}﴾\n[سورة ${bookmark.surahName ?? ""} - الآية ${bookmark.ayahNumber ?? ""}]';
     if (bookmark.note != null && bookmark.note!.isNotEmpty) {
       text += '\n\nالتدبر / الملاحظة:\n${bookmark.note}';
     }
@@ -128,7 +136,10 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
   }
 
   /// حذف الآية من المفضلة بعد تأكيد المستخدم
-  Future<void> _confirmDeleteBookmark(BuildContext context, Bookmark bookmark) async {
+  Future<void> _confirmDeleteBookmark(
+    BuildContext context,
+    Bookmark bookmark,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
@@ -154,11 +165,15 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
     );
 
     if (confirmed == true && bookmark.id != null) {
-      await ref.read(bookmarksNotifierProvider.notifier).removeBookmark(bookmark.id!);
+      await ref
+          .read(bookmarksNotifierProvider.notifier)
+          .removeBookmark(bookmark.id!);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('تم حذف الآية ${bookmark.ayahNumber ?? ""} من المفضلة'),
+            content: Text(
+              'تم حذف الآية ${bookmark.ayahNumber ?? ""} من المفضلة',
+            ),
             backgroundColor: Colors.grey.shade800,
             duration: const Duration(seconds: 2),
           ),
@@ -178,7 +193,8 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'تحديث',
-            onPressed: () => ref.read(bookmarksNotifierProvider.notifier).loadBookmarks(),
+            onPressed: () =>
+                ref.read(bookmarksNotifierProvider.notifier).loadBookmarks(),
           ),
         ],
       ),
@@ -212,11 +228,18 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.search_off, size: 56, color: Colors.grey),
+                        const Icon(
+                          Icons.search_off,
+                          size: 56,
+                          color: Colors.grey,
+                        ),
                         const SizedBox(height: 12),
                         Text(
                           'لا توجد نتائج تطابق "$_filterQuery"',
-                          style: const TextStyle(fontSize: 16, color: Colors.grey),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
@@ -228,15 +251,19 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
 
           return RefreshIndicator(
             color: AppTheme.primaryEmerald,
-            onRefresh: () => ref.read(bookmarksNotifierProvider.notifier).loadBookmarks(),
+            onRefresh: () =>
+                ref.read(bookmarksNotifierProvider.notifier).loadBookmarks(),
             child: Column(
               children: [
                 _buildSearchHeader(allBookmarks.length),
                 Expanded(
                   child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     itemCount: filtered.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final bookmark = filtered[index];
                       return _buildBookmarkCard(context, bookmark);
@@ -273,7 +300,10 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
               : null,
           filled: true,
           fillColor: Theme.of(context).cardColor,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
@@ -284,7 +314,10 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppTheme.primaryEmerald, width: 1.5),
+            borderSide: const BorderSide(
+              color: AppTheme.primaryEmerald,
+              width: 1.5,
+            ),
           ),
         ),
         onChanged: (val) {
@@ -318,7 +351,10 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
               children: [
                 // بادج اسم السورة ورقم الآية
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.primaryEmerald.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
@@ -329,7 +365,11 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.menu_book, size: 14, color: AppTheme.primaryEmerald),
+                      const Icon(
+                        Icons.menu_book,
+                        size: 14,
+                        color: AppTheme.primaryEmerald,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'سورة ${bookmark.surahName ?? ""} - الآية ${bookmark.ayahNumber ?? ""}',
@@ -345,7 +385,11 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
                 const Spacer(),
                 // زر التعديل
                 IconButton(
-                  icon: const Icon(Icons.edit_note, size: 22, color: AppTheme.secondaryGold),
+                  icon: const Icon(
+                    Icons.edit_note,
+                    size: 22,
+                    color: AppTheme.secondaryGold,
+                  ),
                   tooltip: hasNote ? 'تعديل التدبر' : 'إضافة تدبر',
                   onPressed: () => _showEditNoteDialog(context, bookmark),
                 ),
@@ -363,7 +407,11 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
                 ),
                 // زر الحذف
                 IconButton(
-                  icon: Icon(Icons.delete_outline, size: 20, color: Colors.red.shade400),
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 20,
+                    color: Colors.red.shade400,
+                  ),
                   tooltip: 'حذف من المفضلة',
                   onPressed: () => _confirmDeleteBookmark(context, bookmark),
                 ),
@@ -433,10 +481,17 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
                   onPressed: () => _showEditNoteDialog(context, bookmark),
-                  icon: const Icon(Icons.add, size: 16, color: AppTheme.secondaryGold),
+                  icon: const Icon(
+                    Icons.add,
+                    size: 16,
+                    color: AppTheme.secondaryGold,
+                  ),
                   label: const Text(
                     'إضافة تدبر أو ملاحظة',
-                    style: TextStyle(fontSize: 12, color: AppTheme.secondaryGold),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.secondaryGold,
+                    ),
                   ),
                 ),
               ),
@@ -452,10 +507,16 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
               child: TextButton.icon(
                 onPressed: () {
                   if (bookmark.surahId != null && bookmark.ayahNumber != null) {
-                    context.push('/reader/${bookmark.surahId}?ayah=${bookmark.ayahNumber}');
+                    context.push(
+                      '/reader/${bookmark.surahId}?ayah=${bookmark.ayahNumber}',
+                    );
                   }
                 },
-                icon: const Icon(Icons.arrow_back, size: 16, color: AppTheme.primaryEmerald),
+                icon: const Icon(
+                  Icons.arrow_back,
+                  size: 16,
+                  color: AppTheme.primaryEmerald,
+                ),
                 label: const Text(
                   'قراءة في المصحف',
                   style: TextStyle(
@@ -508,8 +569,13 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryEmerald,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               onPressed: () => context.push('/surahs'),
               icon: const Icon(Icons.menu_book),
@@ -538,7 +604,8 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: () => ref.read(bookmarksNotifierProvider.notifier).loadBookmarks(),
+              onPressed: () =>
+                  ref.read(bookmarksNotifierProvider.notifier).loadBookmarks(),
               icon: const Icon(Icons.refresh),
               label: const Text('إعادة المحاولة'),
             ),
