@@ -27,9 +27,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
   }
 
   /// فتح حوار تعديل أو إضافة ملاحظة/تدبر لآية محفوظة
-  Future<void> _showEditNoteDialog(
-    Bookmark bookmark,
-  ) async {
+  Future<void> _showEditNoteDialog(Bookmark bookmark) async {
     final noteController = TextEditingController(text: bookmark.note ?? '');
 
     final saved = await showDialog<bool>(
@@ -135,9 +133,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
   }
 
   /// حذف الآية من المفضلة بعد تأكيد المستخدم
-  Future<void> _confirmDeleteBookmark(
-    Bookmark bookmark,
-  ) async {
+  Future<void> _confirmDeleteBookmark(Bookmark bookmark) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
@@ -347,40 +343,6 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
             // السطر العلوي: اسم السورة ورقم الآية والأزرار السريعة
             Row(
               children: [
-                // بادج اسم السورة ورقم الآية
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryEmerald.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppTheme.primaryEmerald.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.menu_book,
-                        size: 14,
-                        color: AppTheme.primaryEmerald,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'سورة ${bookmark.surahName ?? ""} - الآية ${bookmark.ayahNumber ?? ""}',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryEmerald,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(),
                 // زر التعديل
                 IconButton(
                   icon: const Icon(
@@ -499,6 +461,37 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
             const Divider(height: 1),
             const SizedBox(height: 8),
 
+            // بادج اسم السورة ورقم الآية
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryEmerald.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: AppTheme.primaryEmerald.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.menu_book,
+                    size: 14,
+                    color: AppTheme.primaryEmerald,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'سورة ${bookmark.surahName ?? ""} - الآية ${bookmark.ayahNumber ?? ""}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryEmerald,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // const Spacer(),
             // زر الانتقال للمصحف
             Align(
               alignment: Alignment.centerLeft,
