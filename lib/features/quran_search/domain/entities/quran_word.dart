@@ -53,6 +53,9 @@ class QuranWord extends Equatable {
   /// الوصف الصرفي التفصيلي
   final String? morphology;
 
+  /// اسم السورة بالعربية (عند جلب الكلمة مع بيانات السورة)
+  final String? surahName;
+
   /// المنشئ الثابت لتهيئة كائن الكلمة القرآنية
   const QuranWord({
     required this.id,
@@ -72,6 +75,7 @@ class QuranWord extends Equatable {
     this.suffix,
     this.partOfSpeech,
     this.morphology,
+    this.surahName,
   });
 
   /// إنشاء نسخة جديدة مع تعديل بعض الخصائص
@@ -93,6 +97,7 @@ class QuranWord extends Equatable {
     String? suffix,
     String? partOfSpeech,
     String? morphology,
+    String? surahName,
   }) {
     return QuranWord(
       id: id ?? this.id,
@@ -112,6 +117,7 @@ class QuranWord extends Equatable {
       suffix: suffix ?? this.suffix,
       partOfSpeech: partOfSpeech ?? this.partOfSpeech,
       morphology: morphology ?? this.morphology,
+      surahName: surahName ?? this.surahName,
     );
   }
 
@@ -158,6 +164,7 @@ class QuranWord extends Equatable {
       suffix: map['suffix'] as String?,
       partOfSpeech: map['part_of_speech'] as String?,
       morphology: map['morphology'] as String?,
+      surahName: map['surah_name'] as String?,
     );
   }
 
@@ -180,5 +187,6 @@ class QuranWord extends Equatable {
         suffix,
         partOfSpeech,
         morphology,
+        surahName,
       ];
 }

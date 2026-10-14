@@ -9,7 +9,9 @@ import '../features/quran_search/presentation/screens/ayah_context_screen.dart';
 import '../features/quran_search/presentation/screens/search_results_screen.dart';
 import '../features/quran_search/presentation/screens/search_screen.dart';
 import '../features/root_study/presentation/screens/root_study_screen.dart';
+import '../features/root_study/presentation/screens/roots_directory_screen.dart';
 import '../features/settings/presentation/screens/settings_screen.dart';
+import '../features/vocabulary/presentation/screens/words_management_screen.dart';
 import '../features/quran_search/domain/entities/ayah_search_result.dart';
 
 /// تكوين نظام التوجيه والتنقل الشامل (GoRouter) للتطبيق.
@@ -72,12 +74,30 @@ final GoRouter appRouter = GoRouter(
       ],
     ),
 
-    // شاشة دراسة الجذر القرآني
+    // شاشة دليل واستعراض وإدارة الجذور القرآنية
     GoRoute(
-      path: '/roots/:root',
+      path: '/roots',
       builder: (BuildContext context, GoRouterState state) {
-        final root = state.pathParameters['root'] ?? '';
-        return RootStudyScreen(root: root);
+        return const RootsDirectoryScreen();
+      },
+      routes: [
+        // شاشة دراسة الجذر القرآني
+        GoRoute(
+          path: ':root',
+          builder: (BuildContext context, GoRouterState state) {
+            final root = state.pathParameters['root'] ?? '';
+            return RootStudyScreen(root: root);
+          },
+        ),
+      ],
+    ),
+
+    // شاشة معجم وإدارة وتصحيح الكلمات القرآنية
+    GoRoute(
+      path: '/words',
+      builder: (BuildContext context, GoRouterState state) {
+        final rootParam = state.uri.queryParameters['root'];
+        return WordsManagementScreen(initialRoot: rootParam);
       },
     ),
 

@@ -226,7 +226,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         const SizedBox(height: 16),
 
-        // دراسة الجذور اللغوية
+        // بطاقة دليل وإدارة الجذور القرآنية
         Card(
           child: ListTile(
             contentPadding: const EdgeInsets.all(16),
@@ -236,10 +236,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Icon(Icons.account_tree_outlined),
             ),
             title: const Text(
-              'شاشة دراسة الجذر',
+              'دليل وإدارة الجذور القرآنية',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            subtitle: const Text('تحليل الكلمات القرآنية المشتقة وإحصاءاتها ومواضعها'),
+            subtitle: const Text('استعراض كافة الجذور، البحث، الإحصاءات، وإضافة وتعديل الجذور'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () => context.push('/roots'),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // بطاقة معجم وإدارة الكلمات والمفردات القرآنية
+        Card(
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            leading: const CircleAvatar(
+              backgroundColor: AppTheme.secondaryGold,
+              foregroundColor: Colors.white,
+              child: Icon(Icons.spellcheck),
+            ),
+            title: const Text(
+              'معجم وإدارة الكلمات القرآنية',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            subtitle: const Text('استعراض مفردات القرآن، وتصحيح وإعادة ربط الكلمات بالجذور الصحيحة'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () => context.push('/words'),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // دراسة الجذور اللغوية التفصيلية
+        Card(
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            leading: CircleAvatar(
+              backgroundColor: AppTheme.primaryEmerald.withValues(alpha: 0.1),
+              foregroundColor: AppTheme.primaryEmerald,
+              child: const Icon(Icons.auto_stories_outlined),
+            ),
+            title: const Text(
+              'دراسة تفصيلية لجذر (نموذج: علم)',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            subtitle: const Text('تحليل الكلمات القرآنية المشتقة وإحصاءاتها وتوزيعها ومواضعها'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => context.push('/roots/علم'),
           ),

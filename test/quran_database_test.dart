@@ -14,15 +14,27 @@ void main() {
   group('Quran Database Integrity & Query Tests', () {
     late QuranDatabase quranDb;
     late Database rawDb;
+    late String testDbPath;
+
+    setUpAll(() async {
+      final assetDbPath = p.join(Directory.current.path, 'assets', 'database', 'quran.db');
+      final tempDir = Directory.systemTemp.createTempSync('quran_db_test');
+      testDbPath = p.join(tempDir.path, 'quran_test.db');
+      File(assetDbPath).copySync(testDbPath);
+    });
+
+    tearDownAll(() async {
+      try {
+        final f = File(testDbPath);
+        if (f.existsSync()) f.deleteSync();
+      } catch (_) {}
+    });
 
     setUp(() async {
       QuranDatabase.resetForTesting();
-      // مسار قاعدة البيانات الحقيقية المنشأة في الأصول
-      final assetDbPath = p.join(Directory.current.path, 'assets', 'database', 'quran.db');
-
       quranDb = QuranDatabase.forTesting(
         customFactory: databaseFactoryFfi,
-        customPath: assetDbPath,
+        customPath: testDbPath,
       );
       rawDb = await quranDb.database;
     });
