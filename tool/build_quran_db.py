@@ -140,7 +140,7 @@ def normalize_text(text: str) -> str:
     # إزالة التطويل
     text = text.replace('ـ', '')
     # توحيد الألف
-    text = re.sub(r'[إأآٱ]', 'ا', text)
+    text = re.sub(r'[إأآءئٱ]', 'ا', text)
     # توحيد التاء المربوطة
     text = text.replace('ة', 'ه')
     # توحيد الياء والألف المقصورة للبحث
@@ -297,6 +297,26 @@ def build_database(db_path: str):
     );
     """)
 
+
+    # 8. انشاء جدول المفردات القرانية من ملف wordqurana.xlsx 
+    # mnsn	word1	mxsn	lnss	ext	case1	typew	SrWord	txtnot
+
+    cursor.execute("""
+    CREATE TABLE wordquran (
+        id INTEGER PRIMARY KEY,
+        mnsn TEXT,
+        word TEXT,
+        mxsn TEXT,
+        lnss TEXT,
+        ext TEXT,
+        case1 TEXT,
+        typew TEXT,
+        SrWord TEXT,
+        txtnot TEXT,
+        fixed_root TEXT
+    );
+    """)
+
     # إدخال السور الـ 114
     print("إدخال بيانات السور الـ 114...")
     cursor.executemany("""
@@ -310,32 +330,33 @@ def build_database(db_path: str):
     VALUES (1, 1, 1, datetime('now'));
     """)
 
-    # قراءة قاموس الكلمات والجذور من wordquran.xlsx
-    print("قراءة معجم الكلمات والجذور من wordquran.xlsx...")
+    # قراءة قاموس الكلمات والجذور من wordquran2.xlsx
+    print("قراءة معجم الكلمات والجذور من wordquran2.xlsx...")
     # Map: word_simple -> (root_raw, lemma_raw, typew, case1)
     word_dict = {}
     roots_set = set() # (root_clean, root_norm)
 
-    word_gen = read_xlsx_rows("wordquran.xlsx")
+    word_gen = read_xlsx_rows("wordqurana.xlsx")
     _ = next(word_gen) # تخطي سطر العناوين
     for row in word_gen:
         if len(row) > 7:
-            w_simple = row[1].strip()
-            typew = row[6].strip() if len(row) > 6 else ""
+            w_simple = normalize_text(row[1].strip())
+            typew = row[4].strip() if len(row) > 4 else ""
             sr_word = row[7].strip() if len(row) > 7 else ""
             txtnot = row[8].strip() if len(row) > 8 else ""
 
             # الجذر مثل 'ح.م.د' -> تنظيفه إلى 'حمد'
-            if sr_word and '.' in sr_word and not sr_word.startswith('#'):
-                clean_root = sr_word.replace('.', '').strip()
-            elif txtnot and not txtnot.startswith('#') and len(txtnot) in [3, 4]:
-                clean_root = txtnot.strip()
-            else:
-                clean_root = None
+            # if sr_word and '.' in sr_word and not sr_word.startswith('#'):
+            #     clean_root = sr_word.replace('.', '').strip()
+            # elif txtnot and not txtnot.startswith('#') and len(txtnot) in [3, 4]:
+            #     clean_root = txtnot.strip()
+            # else:
 
-            norm_root = normalize_text(clean_root) if clean_root else None
-            clean_lemma = txtnot if (txtnot and not txtnot.startswith('#')) else None
-            norm_lemma = normalize_text(clean_lemma) if clean_lemma else None
+            clean_root = sr_word
+
+            norm_root = normalize_text(txtnot) # if clean_root else None
+            clean_lemma = txtnot # if (txtnot and not txtnot.startswith('#')) else None
+            norm_lemma = normalize_text(clean_lemma) # if clean_lemma else None
 
             if clean_root and norm_root:
                 roots_set.add((clean_root, norm_root))
@@ -343,7 +364,7 @@ def build_database(db_path: str):
             word_dict[w_simple] = (clean_root, norm_root, clean_lemma, norm_lemma, typew)
 
     print(f"تم تحميل {len(word_dict)} مفردة و {len(roots_set)} جذر فريد من المعجم.")
-
+   
     # إدخال الجذور في جدول roots
     root_id_map = {}
     root_counter = 1
@@ -358,6 +379,30 @@ def build_database(db_path: str):
             root_id_map[r_norm] = root_counter
             root_counter += 1
 
+
+    # تعبئة جدول wordquran
+    print("تعبئة جدول wordquran...")
+    # Map: word_simple -> (root_raw, lemma_raw, typew, case1)
+    word_gen = read_xlsx_rows("wordqurana.xlsx")
+    _ = next(word_gen) # تخطي سطر العناوين
+    for row in word_gen:
+        if len(row) > 9:
+            mnsn = normalize_text(row[0].strip())
+            word = row[1].strip()
+            mxsn = row[2].strip()
+            lnss = row[3].strip()
+            ext = row[4].strip()
+            case1 = row[5].strip()
+            typew = row[6].strip()
+            srword = row[7].strip()
+            txtnot = row[8].strip()
+            fixed_root = row[9].strip() if len(row) > 9 else ""
+            norm_root = normalize_text(fixed_root) if fixed_root else ""
+            
+            cursor.execute("""
+            INSERT INTO wordquran (mnsn, word, mxsn, lnss, ext, case1, typew, SrWord, txtnot, fixed_root)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """, (mnsn, word, mxsn, lnss, ext, case1, typew, srword, txtnot, norm_root))
     # قراءة الآيات من Ayahsquran.xlsx
     print("قراءة الآيات من Ayahsquran.xlsx...")
     ayahs_gen = read_xlsx_rows("Ayahsquran.xlsx")
@@ -449,7 +494,7 @@ def build_database(db_path: str):
                 pos,
                 w_uthmani,
                 w_simple,
-                w_norm,
+                w_norm, # word_normalized
                 c_lemma,
                 n_lemma,
                 c_root,
