@@ -28,7 +28,6 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
 
   /// فتح حوار تعديل أو إضافة ملاحظة/تدبر لآية محفوظة
   Future<void> _showEditNoteDialog(
-    BuildContext context,
     Bookmark bookmark,
   ) async {
     final noteController = TextEditingController(text: bookmark.note ?? '');
@@ -137,7 +136,6 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
 
   /// حذف الآية من المفضلة بعد تأكيد المستخدم
   Future<void> _confirmDeleteBookmark(
-    BuildContext context,
     Bookmark bookmark,
   ) async {
     final confirmed = await showDialog<bool>(
@@ -391,7 +389,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
                     color: AppTheme.secondaryGold,
                   ),
                   tooltip: hasNote ? 'تعديل التدبر' : 'إضافة تدبر',
-                  onPressed: () => _showEditNoteDialog(context, bookmark),
+                  onPressed: () => _showEditNoteDialog(bookmark),
                 ),
                 // زر النسخ
                 IconButton(
@@ -413,7 +411,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
                     color: Colors.red.shade400,
                   ),
                   tooltip: 'حذف من المفضلة',
-                  onPressed: () => _confirmDeleteBookmark(context, bookmark),
+                  onPressed: () => _confirmDeleteBookmark(bookmark),
                 ),
               ],
             ),
@@ -480,7 +478,7 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
-                  onPressed: () => _showEditNoteDialog(context, bookmark),
+                  onPressed: () => _showEditNoteDialog(bookmark),
                   icon: const Icon(
                     Icons.add,
                     size: 16,

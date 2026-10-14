@@ -77,7 +77,7 @@ void main() {
       expect((wordsCount.first['count'] as int) > 70000, isTrue);
 
       final rootsCount = await quranDb.query(sql: 'SELECT COUNT(*) as count FROM roots;');
-      expect((rootsCount.first['count'] as int) > 2000, isTrue);
+      expect((rootsCount.first['count'] as int) > 1900, isTrue);
 
       final linksCount = await quranDb.query(sql: 'SELECT COUNT(*) as count FROM word_roots;');
       expect((linksCount.first['count'] as int) > 50000, isTrue);

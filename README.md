@@ -101,16 +101,24 @@ Data Layer (Repositories & SQLite Pre-populated Database)
 
 ## 🛠️ أوامر التشغيل والاختبار
 
+يدعم التطبيق العمل دون اتصال بالإنترنت على **Android** و **iOS** بالإضافة إلى دعم أصيل لمنصة **Windows Desktop** عبر محرك SQLite FFI ومسار التخزين الدائم (AppData):
+
 ```bash
 # تثبيت الحزم
 flutter pub get
 
-# فحص سلامة وجودة الكود
+# فحص سلامة وجودة الكود (0 issues)
 flutter analyze
 
 # تشغيل كافة الاختبارات الآلية (78 اختباراً ناجحاً بنسبة 100%)
 flutter test
 
-# تشغيل التطبيق
-flutter run
+# تشغيل التطبيق على نظام سطح المكتب (Windows Desktop)
+flutter run -d windows
+
+# تشغيل التطبيق على محاكي أو جهاز أندرويد
+flutter run -d <device_id>
 ```
+
+> **ملاحظة بيئة الويب**: قاعدة بيانات المصحف المدمجة تعمل محلياً ومصممة لأنظمة التشغيل الأصلية (Native OS) عبر SQLite، لذا يلزم تشغيلها على Windows Desktop أو Android/iOS.
+

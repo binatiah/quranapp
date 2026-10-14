@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'database_migrations.dart';
@@ -62,11 +64,23 @@ class QuranDatabase {
 
   /// تهيئة وتجهيز ملف قاعدة البيانات وفتحه
   Future<Database> _initDatabase() async {
+    // التحقق من بيئة الويب غير المتوافقة مع SQLite المباشر
+    if (kIsWeb) {
+      throw UnsupportedError(
+        'قاعدة بيانات SQLite المضمنة غير مهيأة للعمل داخل المتصفح (Web).\n'
+        'يرجى تشغيل التطبيق على منصة Windows Desktop (بأمر flutter run -d windows) أو على منصة Android.',
+      );
+    }
+
     final factory = _customFactory ?? databaseFactory;
     final String path;
 
     if (_customPath != null) {
       path = _customPath;
+    } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      // استخدام مجلد بيانات التطبيق الدائم على أنظمة سطح المكتب
+      final supportDir = await getApplicationSupportDirectory();
+      path = p.join(supportDir.path, databaseFileName);
     } else {
       final databasesPath = await factory.getDatabasesPath();
       path = p.join(databasesPath, databaseFileName);
