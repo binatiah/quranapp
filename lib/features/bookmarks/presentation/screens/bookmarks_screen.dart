@@ -326,6 +326,8 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
   /// بناء بطاقة الآية المفضلة مع الملاحظة والإجراءات
   Widget _buildBookmarkCard(BuildContext context, Bookmark bookmark) {
     final hasNote = bookmark.note != null && bookmark.note!.trim().isNotEmpty;
+    // جلب سمة السطوع الحالية
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       elevation: 1.5,
@@ -474,18 +476,18 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.menu_book,
                     size: 14,
-                    color: AppTheme.primaryEmerald,
+                    color: isDark ? Colors.white54 : AppTheme.primaryEmerald,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     'سورة ${bookmark.surahName ?? ""} - الآية ${bookmark.ayahNumber ?? ""}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryEmerald,
+                      color: isDark ? Colors.white54 : AppTheme.primaryEmerald,
                     ),
                   ),
                 ],
@@ -503,16 +505,16 @@ class _BookmarksScreenState extends ConsumerState<BookmarksScreen> {
                     );
                   }
                 },
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back,
                   size: 16,
-                  color: AppTheme.primaryEmerald,
+                  color: isDark ? Colors.white54 : AppTheme.primaryEmerald,
                 ),
-                label: const Text(
+                label: Text(
                   'قراءة في المصحف',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryEmerald,
+                    color: isDark ? Colors.white54 : AppTheme.primaryEmerald,
                   ),
                 ),
               ),

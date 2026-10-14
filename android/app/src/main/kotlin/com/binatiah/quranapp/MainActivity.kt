@@ -1,4 +1,4 @@
-package com.example.quranapp
+package com.binatiah.quranapp
 
 import io.flutter.embedding.android.FlutterActivity
 
