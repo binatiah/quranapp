@@ -4,6 +4,7 @@ import 'package:quranapp/core/text/arabic_normalizer.dart';
 import 'package:quranapp/core/constants/ui_state.dart';
 import 'package:quranapp/features/root_study/data/repositories/root_study_repository_impl.dart';
 import 'package:quranapp/features/root_study/domain/entities/root_study_data.dart';
+import 'package:quranapp/features/root_study/domain/entities/morphology_tree_node.dart';
 import 'package:quranapp/features/root_study/domain/repositories/root_study_repository.dart';
 
 /// مزود مستودع دراسة الجذور
@@ -153,4 +154,10 @@ class RootStudyNotifier extends FamilyNotifier<RootStudyState, String> {
 final rootStudyNotifierProvider =
     NotifierProvider.family<RootStudyNotifier, RootStudyState, String>(() {
   return RootStudyNotifier();
+});
+
+/// موفر شجرة الاشتقاق الصرفي التفاعلية للجذر القرآني
+final morphologyTreeProvider = FutureProvider.family<MorphologyTreeData, String>((ref, root) {
+  final repo = ref.read(rootStudyRepositoryProvider);
+  return repo.getMorphologyTree(root);
 });

@@ -12,6 +12,7 @@ import 'package:quranapp/features/root_study/domain/entities/derived_word.dart';
 import 'package:quranapp/features/root_study/domain/entities/root_study_data.dart';
 import 'package:quranapp/features/root_study/domain/entities/surah_occurrence.dart';
 import 'package:quranapp/features/root_study/presentation/controllers/root_study_providers.dart';
+import 'package:quranapp/features/root_study/presentation/widgets/morphological_derivation_tree_view.dart';
 
 /// شاشة دراسة الجذر القرآني (RootStudyScreen) الشاملة وفق متطلبات TRD.
 /// تعرض بيانات الجذر، إحصاءات الورود، الكلمات المشتقة، توزيع السور، وجميع مواضع الآيات.
@@ -144,7 +145,7 @@ class RootStudyScreen extends ConsumerWidget {
     RootStudyData data,
   ) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Column(
         children: [
           // بطاقة معلومات الجذر الأساسية والإحصاءات
@@ -154,10 +155,12 @@ class RootStudyScreen extends ConsumerWidget {
           if (state.selectedWordNormalized != null || state.selectedSurahId != null)
             _buildActiveFiltersBar(context, ref, state),
 
-          // شريط التبويبات الثلاثة
+          // شريط التبويبات الأربعة
           Container(
             color: Theme.of(context).cardColor,
             child: TabBar(
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
               indicatorColor: AppTheme.primaryEmerald,
               labelColor: AppTheme.primaryEmerald,
               unselectedLabelColor: Colors.grey,
@@ -175,6 +178,10 @@ class RootStudyScreen extends ConsumerWidget {
                   icon: const Icon(Icons.pie_chart_outline, size: 20),
                   text: 'توزيع السور (${data.surahOccurrences.length})',
                 ),
+                const Tab(
+                  icon: Icon(Icons.account_tree_outlined, size: 20),
+                  text: 'شجرة الاشتقاق',
+                ),
               ],
             ),
           ),
@@ -191,6 +198,42 @@ class RootStudyScreen extends ConsumerWidget {
 
                 // التبويب 3: توزيع السور وتكرارها
                 _buildSurahDistributionTab(context, ref, state, data.surahOccurrences),
+
+                // التبويب 4: شجرة الاشتقاق الصرفي التفاعلية
+                Consumer(
+                  builder: (context, ref, _) {
+                    final treeAsync = ref.watch(morphologyTreeProvider(data.root.root));
+                    return treeAsync.when(
+                      loading: () => const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(color: AppTheme.primaryEmerald),
+                            SizedBox(height: 12),
+                            Text('جاري بناء شجرة الاشتقاق الصرفي...'),
+                          ],
+                        ),
+                      ),
+                      error: (err, _) => Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text('تعذر تحميل شجرة الاشتقاق: $err'),
+                        ),
+                      ),
+                      data: (treeData) => MorphologicalDerivationTreeView(
+                        treeData: treeData,
+                        onWordSelected: (word) {
+                          ref
+                              .read(rootStudyNotifierProvider(data.root.root).notifier)
+                              .filterByWord(
+                                wordNormalized: word.wordNormalized,
+                                wordUthmani: word.wordUthmani,
+                              );
+                        },
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),

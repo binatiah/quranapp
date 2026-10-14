@@ -6,6 +6,7 @@ import 'package:quranapp/features/quran_search/domain/entities/quran_root.dart';
 import 'package:quranapp/features/root_study/domain/repositories/root_management_repository.dart';
 import 'package:quranapp/features/root_study/presentation/controllers/roots_directory_providers.dart';
 import 'package:quranapp/features/root_study/presentation/widgets/add_edit_root_dialog.dart';
+import 'package:quranapp/features/vocabulary/presentation/widgets/lexicon_export_import_dialog.dart';
 
 /// شاشة دليل وإدارة الجذور القرآنية (Roots Directory & Management Screen).
 class RootsDirectoryScreen extends ConsumerStatefulWidget {
@@ -151,6 +152,19 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
       appBar: AppBar(
         title: const Text('دليل وإدارة الجذور القرآنية'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.rule_folder_outlined),
+            tooltip: 'لوحة التدقيق الصرفي الجماعي',
+            onPressed: () => context.push('/morphology-audit'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.sync_alt),
+            tooltip: 'تصدير واستيراد تصحيحات المعجم',
+            onPressed: () => LexiconExportImportDialog.show(
+              context,
+              onImportSuccess: () => notifier.loadRoots(refresh: true),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'تحديث القائمة',

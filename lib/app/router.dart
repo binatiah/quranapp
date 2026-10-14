@@ -12,6 +12,7 @@ import '../features/root_study/presentation/screens/root_study_screen.dart';
 import '../features/root_study/presentation/screens/roots_directory_screen.dart';
 import '../features/settings/presentation/screens/settings_screen.dart';
 import '../features/vocabulary/presentation/screens/words_management_screen.dart';
+import '../features/vocabulary/presentation/screens/morphology_audit_screen.dart';
 import '../features/quran_search/domain/entities/ayah_search_result.dart';
 
 /// تكوين نظام التوجيه والتنقل الشامل (GoRouter) للتطبيق.
@@ -141,6 +142,14 @@ final GoRouter appRouter = GoRouter(
       path: '/settings',
       builder: (BuildContext context, GoRouterState state) {
         return const SettingsScreen();
+      },
+    ),
+
+    // شاشة التدقيق الصرفي والمعجمي الجماعي
+    GoRoute(
+      path: '/morphology-audit',
+      builder: (BuildContext context, GoRouterState state) {
+        return const MorphologyAuditScreen();
       },
     ),
   ],

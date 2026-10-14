@@ -8,16 +8,22 @@ import 'package:quranapp/features/root_study/domain/entities/root_study_data.dar
 import 'package:quranapp/features/root_study/domain/entities/surah_occurrence.dart';
 import 'package:quranapp/features/root_study/domain/repositories/root_study_repository.dart';
 
+import 'package:quranapp/features/root_study/domain/entities/morphology_tree_node.dart';
+import 'package:quranapp/features/root_study/domain/services/morphology_classifier.dart';
+
 /// تطبيق مستودع دراسة الجذور القرآنية المعتمد على استعلامات SQLite ذات الأداء العالي.
 class RootStudyRepositoryImpl implements RootStudyRepository {
   final QuranDatabase _db;
   final ArabicNormalizer _normalizer;
+  final MorphologyClassifier _classifier;
 
   RootStudyRepositoryImpl({
     QuranDatabase? database,
     ArabicNormalizer? normalizer,
+    MorphologyClassifier? classifier,
   })  : _db = database ?? QuranDatabase.instance,
-        _normalizer = normalizer ?? const ArabicNormalizerImpl();
+        _normalizer = normalizer ?? const ArabicNormalizerImpl(),
+        _classifier = classifier ?? const MorphologyClassifier();
 
   @override
   Future<List<DerivedWord>> getDerivedWords(String root) async {
@@ -37,6 +43,27 @@ class RootStudyRepositoryImpl implements RootStudyRepository {
 
     final rows = await _db.query(sql: sql, arguments: [normalized]);
     return rows.map(DerivedWord.fromMap).toList();
+  }
+
+  @override
+  Future<MorphologyTreeData> getMorphologyTree(String root) async {
+    final normalized = _normalizer.normalizeForRootSearch(root);
+    if (normalized.isEmpty) {
+      return MorphologyTreeData(
+        root: root,
+        rootNormalized: '',
+        branches: const [],
+        totalUniqueWords: 0,
+        totalOccurrences: 0,
+      );
+    }
+
+    final words = await getDerivedWords(root);
+    return _classifier.classify(
+      root: root,
+      rootNormalized: normalized,
+      words: words,
+    );
   }
 
   @override

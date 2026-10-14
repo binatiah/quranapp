@@ -8,6 +8,7 @@ import 'package:quranapp/features/vocabulary/domain/entities/word_filter_criteri
 import 'package:quranapp/features/vocabulary/presentation/controllers/words_management_providers.dart';
 import 'package:quranapp/features/vocabulary/presentation/widgets/edit_word_dialog.dart';
 import 'package:quranapp/features/vocabulary/presentation/widgets/relink_word_dialog.dart';
+import 'package:quranapp/features/vocabulary/presentation/widgets/lexicon_export_import_dialog.dart';
 
 /// شاشة معجم وإدارة وتصحيح الكلمات والمفردات القرآنية (Words Management Screen).
 class WordsManagementScreen extends ConsumerStatefulWidget {
@@ -213,6 +214,19 @@ class _WordsManagementScreenState extends ConsumerState<WordsManagementScreen> {
       appBar: AppBar(
         title: const Text('معجم وإدارة الكلمات القرآنية'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.rule_folder_outlined),
+            tooltip: 'لوحة التدقيق الصرفي الجماعي',
+            onPressed: () => context.push('/morphology-audit'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.sync_alt),
+            tooltip: 'تصدير واستيراد تصحيحات المعجم',
+            onPressed: () => LexiconExportImportDialog.show(
+              context,
+              onImportSuccess: () => notifier.loadWords(refresh: true),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'تحديث الكلمات',

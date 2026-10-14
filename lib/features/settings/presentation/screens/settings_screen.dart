@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../app/theme/app_theme.dart';
+import 'package:go_router/go_router.dart';
+import 'package:quranapp/app/theme/app_theme.dart';
+import 'package:quranapp/features/vocabulary/presentation/widgets/lexicon_export_import_dialog.dart';
 import '../controllers/settings_providers.dart';
 
 /// شاشة الإعدادات العامة والتفضيلات (SettingsScreen).
@@ -14,9 +16,7 @@ class SettingsScreen extends ConsumerWidget {
     final settingsNotifier = ref.read(settingsNotifierProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('الإعدادات والتفضيلات'),
-      ),
+      appBar: AppBar(title: const Text('الإعدادات والتفضيلات')),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         children: [
@@ -28,7 +28,9 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             elevation: 1,
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -54,7 +56,8 @@ class SettingsScreen extends ConsumerWidget {
                         subtitle: 'النظام',
                         icon: Icons.brightness_auto,
                         isSelected: settings.themeMode == ThemeMode.system,
-                        onTap: () => settingsNotifier.setThemeMode(ThemeMode.system),
+                        onTap: () =>
+                            settingsNotifier.setThemeMode(ThemeMode.system),
                       ),
                       const SizedBox(width: 10),
                       _buildThemeOption(
@@ -63,7 +66,8 @@ class SettingsScreen extends ConsumerWidget {
                         subtitle: 'نهاري',
                         icon: Icons.light_mode,
                         isSelected: settings.themeMode == ThemeMode.light,
-                        onTap: () => settingsNotifier.setThemeMode(ThemeMode.light),
+                        onTap: () =>
+                            settingsNotifier.setThemeMode(ThemeMode.light),
                       ),
                       const SizedBox(width: 10),
                       _buildThemeOption(
@@ -72,7 +76,8 @@ class SettingsScreen extends ConsumerWidget {
                         subtitle: 'ليلي',
                         icon: Icons.dark_mode,
                         isSelected: settings.themeMode == ThemeMode.dark,
-                        onTap: () => settingsNotifier.setThemeMode(ThemeMode.dark),
+                        onTap: () =>
+                            settingsNotifier.setThemeMode(ThemeMode.dark),
                       ),
                     ],
                   ),
@@ -90,7 +95,9 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             elevation: 1,
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -102,15 +109,23 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       const Text(
                         'حجم خط الآيات',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryEmerald.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: AppTheme.primaryEmerald.withValues(alpha: 0.3),
+                            color: AppTheme.primaryEmerald.withValues(
+                              alpha: 0.3,
+                            ),
                           ),
                         ),
                         child: Text(
@@ -139,17 +154,32 @@ class SettingsScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('أصغر (16)', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      const Text(
+                        'أصغر (16)',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
                       TextButton.icon(
-                        style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+                        style: TextButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                        ),
                         onPressed: () => settingsNotifier.setFontSize(22.0),
-                        icon: const Icon(Icons.restore, size: 16, color: AppTheme.secondaryGold),
+                        icon: const Icon(
+                          Icons.restore,
+                          size: 16,
+                          color: AppTheme.secondaryGold,
+                        ),
                         label: const Text(
                           'إعادة للوضع الافتراضي (22)',
-                          style: TextStyle(fontSize: 12, color: AppTheme.secondaryGold),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.secondaryGold,
+                          ),
                         ),
                       ),
-                      const Text('أكبر (36)', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      const Text(
+                        'أكبر (36)',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -157,7 +187,11 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: 14),
                   const Text(
                     'معاينة حية للنص العثماني:',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   // حاوية المعاينة الحية للخط
@@ -208,14 +242,21 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             elevation: 1,
             child: Column(
               children: [
                 SwitchListTile(
-                  secondary: const Icon(Icons.phone_android, color: AppTheme.primaryEmerald),
+                  secondary: const Icon(
+                    Icons.phone_android,
+                    color: AppTheme.primaryEmerald,
+                  ),
                   title: const Text('إبقاء الشاشة مضاءة'),
-                  subtitle: const Text('منع إغلاق الشاشة تلقائياً أثناء تلاوة القرآن وتدبره'),
+                  subtitle: const Text(
+                    'منع إغلاق الشاشة تلقائياً أثناء تلاوة القرآن وتدبره',
+                  ),
                   value: settings.keepScreenAwake,
                   activeTrackColor: AppTheme.primaryEmerald,
                   onChanged: (val) => settingsNotifier.setKeepScreenAwake(val),
@@ -225,7 +266,69 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
 
-          // 4. قسم المصادر والبيانات
+          // 4. قسم أدوات المعجم والتدقيق الصرفي
+          _buildSectionTitle(
+            context,
+            title: 'أدوات المعجم والتدقيق الصرفي',
+            icon: Icons.auto_stories,
+          ),
+          const SizedBox(height: 10),
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 1,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(
+                    Icons.rule_folder_outlined,
+                    color: AppTheme.primaryEmerald,
+                  ),
+                  title: const Text('لوحة التدقيق الصرفي الجماعي'),
+                  subtitle: const Text('رصد الكلمات غير المحللة وربطها بالجذور دفعة واحدة'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => context.push('/morphology-audit'),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(
+                    Icons.account_tree_outlined,
+                    color: AppTheme.primaryEmerald,
+                  ),
+                  title: const Text('دليل وإدارة الجذور القرآنية'),
+                  subtitle: const Text('استعراض معجم الجذور، المشتقات، وإضافة جذور جديدة'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => context.push('/roots'),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(
+                    Icons.menu_book_outlined,
+                    color: AppTheme.primaryEmerald,
+                  ),
+                  title: const Text('معجم وإدارة الكلمات القرآنية'),
+                  subtitle: const Text('تصفح الكلمات وتعديل مواضعها وإعادة ربطها بالجذور'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => context.push('/words-management'),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(
+                    Icons.sync_alt,
+                    color: AppTheme.secondaryGold,
+                  ),
+                  title: const Text('تصدير واستيراد تصحيحات المعجم'),
+                  subtitle: const Text('حفظ نسخة احتياطية من التعديلات أو استعادتها بصيغة JSON'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => LexiconExportImportDialog.show(context),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // 5. قسم المصادر والبيانات
           _buildSectionTitle(
             context,
             title: 'المصادر والتوثيق',
@@ -233,7 +336,9 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             elevation: 1,
             child: Column(
               children: [
@@ -247,7 +352,10 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const Divider(height: 1),
                 const ListTile(
-                  leading: Icon(Icons.account_tree_outlined, color: AppTheme.primaryEmerald),
+                  leading: Icon(
+                    Icons.account_tree_outlined,
+                    color: AppTheme.primaryEmerald,
+                  ),
                   title: Text('التحليل الصرفي والجذور'),
                   subtitle: Text(
                     'قاعدة بيانات صرفية دقيقة لـ 77,794 كلمة و 2,194 جذراً لغوياً (Quranic Arabic Corpus).',
@@ -256,7 +364,10 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.layers_outlined, color: Colors.blueGrey),
+                  leading: const Icon(
+                    Icons.layers_outlined,
+                    color: Colors.blueGrey,
+                  ),
                   title: const Text('هندسة التطبيق وقاعدة البيانات'),
                   subtitle: Text(
                     'تطبيق يعمل كلياً بدون إنترنت (Offline-First) بهندسة نظيفة Clean Architecture وتخزين محلي فائق السرعة عبر SQLite.',
@@ -271,7 +382,7 @@ class SettingsScreen extends ConsumerWidget {
                   leading: Icon(Icons.info_outline),
                   title: Text('إصدار التطبيق'),
                   trailing: Text(
-                    '1.0.0 (المرحلة 7)',
+                    '1.0.1 (المرحلة 9)',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
