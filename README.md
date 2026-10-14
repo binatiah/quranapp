@@ -132,6 +132,9 @@ flutter pub get
 # فحص سلامة وجودة الكود (0 issues)
 dart analyze
 
+# انشاء قاعدة البيانات
+py tool\build_quran_db.py
+
 # تشغيل كافة الاختبارات الآلية (103 اختبارات ناجحة بنسبة 100%)
 flutter test
 
