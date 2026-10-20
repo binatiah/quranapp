@@ -13,6 +13,8 @@ import 'package:quranapp/features/root_study/domain/entities/root_study_data.dar
 import 'package:quranapp/features/root_study/domain/entities/surah_occurrence.dart';
 import 'package:quranapp/features/root_study/presentation/controllers/root_study_providers.dart';
 import 'package:quranapp/features/root_study/presentation/widgets/morphological_derivation_tree_view.dart';
+import 'package:quranapp/features/study_projects/domain/entities/study_project.dart';
+import 'package:quranapp/features/study_projects/presentation/widgets/create_study_project_dialog.dart';
 
 /// شاشة دراسة الجذر القرآني (RootStudyScreen) الشاملة وفق متطلبات TRD.
 /// تعرض بيانات الجذر، إحصاءات الورود، الكلمات المشتقة، توزيع السور، وجميع مواضع الآيات.
@@ -71,6 +73,21 @@ class RootStudyScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('دراسة الجذر: $root'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.post_add_outlined),
+            tooltip: 'فتح مشروع دراسة لهذا الجذر',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => CreateStudyProjectDialog(
+                  initialType: StudyProjectType.root,
+                  initialTarget: root,
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Builder(
         builder: (context) {

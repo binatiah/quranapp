@@ -9,6 +9,8 @@ import 'package:quranapp/features/settings/presentation/controllers/settings_pro
 import '../../domain/entities/ayah.dart';
 import '../../domain/entities/surah.dart';
 import '../controllers/quran_providers.dart';
+import 'package:quranapp/features/study_projects/domain/entities/study_project.dart';
+import 'package:quranapp/features/study_projects/presentation/widgets/create_study_project_dialog.dart';
 
 /// شاشة عارض القرآن الكريم التفاعلية (QuranReaderScreen) لعرض آيات السورة بالنص العثماني.
 class QuranReaderScreen extends ConsumerStatefulWidget {
@@ -393,6 +395,20 @@ class _QuranReaderScreenState extends ConsumerState<QuranReaderScreen> {
                       icon: const Icon(Icons.share_outlined, size: 18),
                       tooltip: 'مشاركة الآية',
                       onPressed: () => _shareAyah(ayah, surahName),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.post_add_outlined, size: 20),
+                      tooltip: 'فتح مشروع دراسة لهذه الآية',
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => CreateStudyProjectDialog(
+                            initialType: StudyProjectType.ayah,
+                            initialSurahId: surah?.id ?? widget.surahId,
+                            initialAyahNumber: ayah.ayahNumber,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

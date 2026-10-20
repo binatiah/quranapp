@@ -14,6 +14,10 @@ import '../features/settings/presentation/screens/settings_screen.dart';
 import '../features/vocabulary/presentation/screens/words_management_screen.dart';
 import '../features/vocabulary/presentation/screens/morphology_audit_screen.dart';
 import '../features/quran_search/domain/entities/ayah_search_result.dart';
+import '../features/study_projects/presentation/screens/study_projects_hub_screen.dart';
+import '../features/study_projects/presentation/screens/root_study_project_screen.dart';
+import '../features/study_projects/presentation/screens/ayah_study_project_screen.dart';
+import '../features/study_projects/presentation/screens/concept_study_project_screen.dart';
 
 /// تكوين نظام التوجيه والتنقل الشامل (GoRouter) للتطبيق.
 final GoRouter appRouter = GoRouter(
@@ -151,6 +155,43 @@ final GoRouter appRouter = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         return const MorphologyAuditScreen();
       },
+    ),
+
+    // شاشة مركز مشاريع الدراسة القرآنية المتكامل
+    GoRoute(
+      path: '/study-projects',
+      builder: (BuildContext context, GoRouterState state) {
+        return const StudyProjectsHubScreen();
+      },
+      routes: [
+        // شاشة محرر مشروع دراسة الجذر
+        GoRoute(
+          path: 'root/:projectId',
+          builder: (BuildContext context, GoRouterState state) {
+            final idStr = state.pathParameters['projectId'] ?? '0';
+            final id = int.tryParse(idStr) ?? 0;
+            return RootStudyProjectScreen(projectId: id);
+          },
+        ),
+        // شاشة محرر مشروع دراسة الآية
+        GoRoute(
+          path: 'ayah/:projectId',
+          builder: (BuildContext context, GoRouterState state) {
+            final idStr = state.pathParameters['projectId'] ?? '0';
+            final id = int.tryParse(idStr) ?? 0;
+            return AyahStudyProjectScreen(projectId: id);
+          },
+        ),
+        // شاشة محرر مشروع دراسة المفهوم
+        GoRoute(
+          path: 'concept/:projectId',
+          builder: (BuildContext context, GoRouterState state) {
+            final idStr = state.pathParameters['projectId'] ?? '0';
+            final id = int.tryParse(idStr) ?? 0;
+            return ConceptStudyProjectScreen(projectId: id);
+          },
+        ),
+      ],
     ),
   ],
 );

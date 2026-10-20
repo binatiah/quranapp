@@ -226,6 +226,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         const SizedBox(height: 16),
 
+        // بطاقة مركز مشاريع الدراسة القرآنية المنهجية
+        Card(
+          color: AppTheme.primaryEmerald.withValues(alpha: 0.08),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: AppTheme.primaryEmerald.withValues(alpha: 0.2)),
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            leading: const CircleAvatar(
+              backgroundColor: AppTheme.primaryEmerald,
+              foregroundColor: Colors.white,
+              child: Icon(Icons.folder_special_outlined),
+            ),
+            title: const Text(
+              'مشاريع الدراسة القرآنية المنهجية',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            subtitle: const Text(
+              'فتح وإدارة مشاريع متخصصة لدراسة الجذور والآيات والمفاهيم الكلية مع الاستنتاج الآلي ومؤشرات الإنجاز',
+            ),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () => context.push('/study-projects'),
+          ),
+        ),
+        const SizedBox(height: 12),
+
         // بطاقة دليل وإدارة الجذور القرآنية
         Card(
           child: ListTile(

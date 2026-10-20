@@ -95,7 +95,7 @@ class QuranDatabase {
     }
 
     // فتح قاعدة البيانات مع تفعيل خيار readOnly وإدارة الترحيلات
-    return await factory.openDatabase(
+    final db = await factory.openDatabase(
       path,
       options: OpenDatabaseOptions(
         readOnly: _readOnly,
@@ -103,6 +103,17 @@ class QuranDatabase {
         onUpgrade: _readOnly ? null : DatabaseMigrations.onUpgrade,
       ),
     );
+
+    if (!_readOnly) {
+      try {
+        await db.execute('PRAGMA foreign_keys = ON;');
+        await DatabaseMigrations.createStudyProjectsTables(db);
+      } catch (_) {
+        // تجاهل أي استثناء إذا كانت قاعدة البيانات في وضع لا يقبل التهيئة الفورية
+      }
+    }
+
+    return db;
   }
 
   /// نسخ ملف قاعدة البيانات الجاهزة من assets إلى مساحة التخزين المحلية للتطبيق
