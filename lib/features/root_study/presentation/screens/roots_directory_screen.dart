@@ -13,7 +13,8 @@ class RootsDirectoryScreen extends ConsumerStatefulWidget {
   const RootsDirectoryScreen({super.key});
 
   @override
-  ConsumerState<RootsDirectoryScreen> createState() => _RootsDirectoryScreenState();
+  ConsumerState<RootsDirectoryScreen> createState() =>
+      _RootsDirectoryScreenState();
 }
 
 class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
@@ -27,7 +28,8 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       ref.read(rootsDirectoryNotifierProvider.notifier).loadMore();
     }
   }
@@ -44,10 +46,9 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
       context: context,
       builder: (ctx) => AddEditRootDialog(
         onSave: ({required String root, String? descriptionAr}) async {
-          await ref.read(rootsDirectoryNotifierProvider.notifier).addRoot(
-                root: root,
-                descriptionAr: descriptionAr,
-              );
+          await ref
+              .read(rootsDirectoryNotifierProvider.notifier)
+              .addRoot(root: root, descriptionAr: descriptionAr);
         },
       ),
     ).then((result) {
@@ -68,7 +69,9 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
       builder: (ctx) => AddEditRootDialog(
         rootToEdit: targetRoot,
         onSave: ({required String root, String? descriptionAr}) async {
-          await ref.read(rootsDirectoryNotifierProvider.notifier).updateRoot(
+          await ref
+              .read(rootsDirectoryNotifierProvider.notifier)
+              .updateRoot(
                 id: targetRoot.id,
                 root: root,
                 descriptionAr: descriptionAr,
@@ -206,7 +209,10 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
               ),
               onChanged: notifier.search,
             ),
@@ -299,7 +305,10 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
                       const SizedBox(height: 16),
                       const Text(
                         'لم يتم العثور على أي جذر مطابق',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       const Text(
@@ -323,7 +332,11 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                      const Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: Colors.red,
+                      ),
                       const SizedBox(height: 12),
                       Text(msg, textAlign: TextAlign.center),
                       const SizedBox(height: 16),
@@ -406,7 +419,10 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.primaryEmerald.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
@@ -415,7 +431,7 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
                     ),
                   ),
                   child: Text(
-                    root.root,
+                    root.rootNormalized,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -433,20 +449,34 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         padding: EdgeInsets.zero,
                         labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-                        avatar: const Icon(Icons.repeat, size: 14, color: AppTheme.secondaryGold),
+                        avatar: const Icon(
+                          Icons.repeat,
+                          size: 14,
+                          color: AppTheme.secondaryGold,
+                        ),
                         label: Text(
                           '${root.occurrencesCount} موضع ورود',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       Chip(
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         padding: EdgeInsets.zero,
                         labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-                        avatar: const Icon(Icons.style, size: 14, color: AppTheme.primaryEmerald),
+                        avatar: const Icon(
+                          Icons.style,
+                          size: 14,
+                          color: AppTheme.primaryEmerald,
+                        ),
                         label: Text(
                           '${root.wordsCount} مشتقات',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
@@ -476,9 +506,16 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline, color: Colors.red, size: 18),
+                          Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                            size: 18,
+                          ),
                           SizedBox(width: 8),
-                          Text('حذف الجذر', style: TextStyle(color: Colors.red)),
+                          Text(
+                            'حذف الجذر',
+                            style: TextStyle(color: Colors.red),
+                          ),
                         ],
                       ),
                     ),
@@ -489,7 +526,8 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
             const SizedBox(height: 12),
 
             // وصف الجذر إن وجد
-            if (root.descriptionAr != null && root.descriptionAr!.trim().isNotEmpty) ...[
+            if (root.descriptionAr != null &&
+                root.descriptionAr!.trim().isNotEmpty) ...[
               Text(
                 root.descriptionAr!,
                 maxLines: 2,
@@ -497,14 +535,20 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.85),
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.85),
                 ),
               ),
               const SizedBox(height: 12),
             ] else ...[
               Row(
                 children: [
-                  Icon(Icons.info_outline, size: 14, color: Colors.grey.withValues(alpha: 0.6)),
+                  Icon(
+                    Icons.info_outline,
+                    size: 14,
+                    color: Colors.grey.withValues(alpha: 0.6),
+                  ),
                   const SizedBox(width: 6),
                   const Text(
                     'لا يوجد بيان لغوي مسجل لهذا الجذر بعد.',
@@ -521,7 +565,7 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      context.push('/roots/${root.root}');
+                      context.push('/roots/${root.rootNormalized}');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryEmerald,
@@ -529,7 +573,10 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
                     icon: const Icon(Icons.account_tree_outlined, size: 18),
-                    label: const Text('دراسة الجذر', style: TextStyle(fontSize: 13)),
+                    label: const Text(
+                      'دراسة الجذر',
+                      style: TextStyle(fontSize: 13),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -544,7 +591,10 @@ class _RootsDirectoryScreenState extends ConsumerState<RootsDirectoryScreen> {
                       foregroundColor: AppTheme.secondaryGold,
                     ),
                     icon: const Icon(Icons.list_alt, size: 18),
-                    label: const Text('استعراض الكلمات', style: TextStyle(fontSize: 13)),
+                    label: const Text(
+                      'استعراض الكلمات',
+                      style: TextStyle(fontSize: 13),
+                    ),
                   ),
                 ),
               ],
